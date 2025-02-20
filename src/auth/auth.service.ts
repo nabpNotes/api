@@ -35,8 +35,8 @@ export class AuthService {
         if (!user) {
             return null;
         }
-        const result_1 = await bcrypt.compare(password, user.password);
-        return result_1 ? user : null;
+        const result = await bcrypt.compare(password, user.password);
+        return result ? user : null;
     }
 
     /**
@@ -47,9 +47,11 @@ export class AuthService {
      * @returns The new user
      */
     async register(email: string, username: string, password: string) {
-        const existingUser = await this.userModel.findOne({email}).exec();
-        if (existingUser) {
-            throw new ConflictException('E-Mail bereits vergeben');
+        if (await this.userModel.findOne({email}).exec()) {
+            throw new ConflictException('E-Mail already taken');
+        }
+        if (await this.userModel.findOne({username}).exec()) {
+            throw new ConflictException('Username already taken');
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
