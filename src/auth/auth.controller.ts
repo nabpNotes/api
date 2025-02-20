@@ -1,4 +1,4 @@
-import {Controller, Headers, Get, UnauthorizedException} from '@nestjs/common';
+import {Controller, Headers, Get, UnauthorizedException, Post, Body} from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
@@ -10,7 +10,7 @@ export class AuthController {
      * This endpoint validates jwt
      * @param authHeader
      */
-    @Get('validate-token')
+    @Get('')
     validateToken(@Headers('authorization') authHeader: string): { valid: boolean } {
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             throw new UnauthorizedException('Missing or malformed token');
@@ -26,9 +26,42 @@ export class AuthController {
         return {valid: true};
     }
 
-    //TODO muss noch raus
-    @Get('token')
-    createToken(@Headers('authorization') authHeader: string): { token: string } {
-        return {token: this.authService.createToken()};
+    /**
+     * This endpoint logs in a user
+     * @param body {username: string, password: string}- The body of the request
+     */
+    @Post('login')
+    async login(@Body() body: { username: string, password: string }) {
+        const user = await this.authService.login(body.username, body.password);
+
+        if (!user) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+        return {
+            token: this.authService.createToken({sub: user._id, username: user.username}),
+            username: user.username,
+            nickname: user.nickname,
+            userRole: user.role
+        };
+    }
+
+    /**
+     * This endpoint registers a user
+     * @param body {email: string, username: string, password: string}- The body of the request
+     */
+    @Post('register')
+    async register(@Body() body: { email:string, username: string, password: string }) {
+        const user = await this.authService.register(body.email, body.username, body.password);
+        if (!user) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+        return {
+            token: this.authService.createToken({sub: user._id, username: user.username}),
+            username: user.username,
+            nickname: user.nickname,
+            userRole: user.role
+        };
     }
 }
