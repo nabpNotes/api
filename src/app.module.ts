@@ -4,6 +4,7 @@ import {AppService} from './app.service';
 import {AuthModule} from './auth/auth.module';
 import {UserModule} from './user/user.module';
 import {MongooseModule} from '@nestjs/mongoose';
+import { GroupModule } from './group/group.module';
 import * as process from "node:process";
 import * as dotenv from 'dotenv';
 
@@ -17,7 +18,8 @@ const MONGO_PASSWORD = process.env.MONGO_PASSWORD;
   imports: [
     MongooseModule.forRoot(`mongodb://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_URL}?authSource=admin`),
     UserModule,
-    AuthModule
+    AuthModule,
+    GroupModule
   ],
   controllers: [AppController],
   providers: [AppService],

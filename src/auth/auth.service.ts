@@ -15,10 +15,9 @@ export class AuthService {
      */
     validateToken(token: string) {
         try {
-            const decoded = this.jwtService.verify(token);
-            return !!decoded;
+            return this.jwtService.verify(token);
         } catch (error) {
-            return false;
+            return null;
         }
     }
 
