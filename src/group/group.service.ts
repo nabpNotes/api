@@ -10,10 +10,6 @@ import {Group, GroupDocument} from "./group.schema";
 export class GroupService {
   constructor(private readonly authService: AuthService, @InjectModel(Group.name) private groupModel: Model<GroupDocument>) {}
 
-  create(createGroupDto: CreateGroupDto) {
-    return 'This action adds a new group';
-  }
-
   async findAll(token: string) {
     const decoded = this.authService.validateToken(token);
     if (!decoded) {
@@ -23,17 +19,5 @@ export class GroupService {
     return await this.groupModel.find({
       'members.userId': decoded.sub
     }).exec();
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} group`;
-  }
-
-  update(id: number, updateGroupDto: UpdateGroupDto) {
-    return `This action updates a #${id} group`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} group`;
   }
 }

@@ -6,11 +6,6 @@ import { CreateGroupDto } from './dto/create-group.dto';
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
-  @Post()
-  create(@Body() createGroupDto: CreateGroupDto) {
-    return this.groupService.create(createGroupDto);
-  }
-
   @Get()
   findAll(@Headers('authorization') authHeader: string) {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
