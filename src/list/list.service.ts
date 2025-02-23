@@ -1,13 +1,14 @@
 import {Injectable, UnauthorizedException} from '@nestjs/common';
 import {AuthService} from "../auth/auth.service";
-import {InjectModel} from "@nestjs/mongoose";
-import {Model} from "mongoose";
+import {InjectModel, } from "@nestjs/mongoose";
+import {Model, Types} from "mongoose";
 import {List, ListDocument} from "./list.schema";
 import {Group, GroupDocument} from "../group/group.schema";
 
 @Injectable()
 export class ListService {
-    constructor(private readonly authService: AuthService, @InjectModel(Group.name) private group: Model<GroupDocument>, @InjectModel(List.name) private list: Model<ListDocument>) {}
+    constructor(private readonly authService: AuthService, @InjectModel(Group.name) private group: Model<GroupDocument>, @InjectModel(List.name) private list: Model<ListDocument>) {
+    }
 
     async findAllInGroup(token: string, id: string) {
         const decoded = this.authService.validateToken(token);
@@ -17,7 +18,7 @@ export class ListService {
             throw new UnauthorizedException('Invalid or expired token');
         }
 
-        const groupData = await this.group.findById(id).exec();
+        /*const groupData = await this.group.findById(id).exec();
 
         if (!groupData) {
             throw new UnauthorizedException('Group not found');
@@ -32,6 +33,39 @@ export class ListService {
             _id: {
                 $in: listIds
             }
-        }).exec();
+        }).exec();*/
+        return await this.group.aggregate([
+            {
+                $match: {
+                    _id: new Types.ObjectId(id),
+                    "members.userId": decoded.sub
+                }
+            },
+            {
+                $unwind: "$lists"
+            },
+            {
+                $lookup: {
+                    from: "lists",
+                    let: { listIdStr: "$lists.listId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: [{ $toString: "$_id" }, "$$listIdStr"]
+                                }
+                            }
+                        }
+                    ],
+                    as: "listData"
+                }
+            },
+            {
+                $unwind: "$listData"
+            },
+            {
+                $replaceRoot: { newRoot: "$listData" }
+            }
+        ]).exec();
     }
 }
