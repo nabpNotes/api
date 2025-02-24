@@ -10,6 +10,9 @@ RUN npm install --only=production
 # Quellcode kopieren
 COPY . .
 
+# NestJS kompilieren
+RUN npm run build
+
 # Port freigeben
 EXPOSE 3000
 
