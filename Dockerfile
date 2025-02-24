@@ -1,20 +1,14 @@
 FROM node:20
 
-# Arbeitsverzeichnis setzen
 WORKDIR /app
 
-# Package-Dateien kopieren und Abhängigkeiten installieren
 COPY package.json package-lock.json ./
-RUN npm install --only=production
+RUN npm install
 
-# Quellcode kopieren
 COPY . .
 
-# NestJS kompilieren
-RUN npm run build
+RUN npm run build 
 
-# Port freigeben
 EXPOSE 3000
 
-# Startbefehl für die API
 CMD ["node", "dist/main.js"]
