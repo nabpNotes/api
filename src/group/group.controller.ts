@@ -1,6 +1,5 @@
-import {Controller, Get, Post, Body, Headers, UnauthorizedException} from '@nestjs/common';
+import {Controller, Get, Headers, UnauthorizedException, Param} from '@nestjs/common';
 import { GroupService } from './group.service';
-import { CreateGroupDto } from './dto/create-group.dto';
 
 @Controller('group')
 export class GroupController {
@@ -17,12 +16,18 @@ export class GroupController {
     return this.groupService.findAll(token);
   }
 
-  /*@Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.groupService.findOne(+id);
+  @Get(':id')
+  findOne(@Headers('authorization') authHeader: string, @Param('id') id: string) {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new UnauthorizedException('Missing or malformed token');
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    return this.groupService.findOne(token, id);
   }
 
-  @Patch(':id')
+  /*@Patch(':id')
   update(@Param('id') id: string, @Body() updateGroupDto: UpdateGroupDto) {
     return this.groupService.update(+id, updateGroupDto);
   }

@@ -18,7 +18,7 @@ export class ListService {
             throw new UnauthorizedException('Invalid or expired token');
         }
 
-        /*const groupData = await this.group.findById(id).exec();
+        const groupData = await this.group.findById(id).exec();
 
         if (!groupData) {
             throw new UnauthorizedException('Group not found');
@@ -33,8 +33,8 @@ export class ListService {
             _id: {
                 $in: listIds
             }
-        }).exec();*/
-        return await this.group.aggregate([
+        }).exec();
+        /*return await this.group.aggregate([
             {
                 $match: {
                     _id: new Types.ObjectId(id),
@@ -66,6 +66,6 @@ export class ListService {
             {
                 $replaceRoot: { newRoot: "$listData" }
             }
-        ]).exec();
+        ]).exec();*/
     }
 }
