@@ -4,11 +4,19 @@ import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose";
 import {Group, GroupDocument} from "./group.schema";
 
+/**
+ * This service handles group related operations
+ */
 @Injectable()
 export class GroupService {
   constructor(private readonly authService: AuthService, @InjectModel(Group.name) private groupModel: Model<GroupDocument>) {
   }
 
+  /**
+   * This function finds all groups of a user
+   * @param token - The token of the user
+   * @returns The groups
+   */
   async findAll(token: string) {
     const decoded = this.authService.validateToken(token);
     if (!decoded) {
@@ -20,6 +28,12 @@ export class GroupService {
     }).exec();
   }
 
+  /**
+   * This function finds a group by id
+   * @param token - The token of the user
+   * @param id - The id of the group
+   * @returns The group
+   */
   async findOne(token: string, id: string) {
     const decoded = this.authService.validateToken(token);
     if (!decoded) {

@@ -5,11 +5,20 @@ import {Model, Types} from "mongoose";
 import {List, ListDocument} from "./list.schema";
 import {Group, GroupDocument} from "../group/group.schema";
 
+/**
+ * This service handles list related operations
+ */
 @Injectable()
 export class ListService {
     constructor(private readonly authService: AuthService, @InjectModel(Group.name) private group: Model<GroupDocument>, @InjectModel(List.name) private list: Model<ListDocument>) {
     }
 
+    /**
+     * This function finds all lists in a group
+     * @param token - The token of the user
+     * @param id - The id of the group
+     * @returns The lists
+     */
     async findAllInGroup(token: string, id: string) {
         const decoded = this.authService.validateToken(token);
         let listIds: string[] = [];

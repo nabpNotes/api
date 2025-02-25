@@ -1,10 +1,18 @@
 import {Controller, Get, Headers, UnauthorizedException, Param} from '@nestjs/common';
 import { GroupService } from './group.service';
 
+/**
+ * This controller handles group related operations
+ */
 @Controller('group')
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
+  /**
+   * This function finds all groups of a user
+   * @param authHeader - The authorization header
+   * @returns The groups
+   */
   @Get()
   findAll(@Headers('authorization') authHeader: string) {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
