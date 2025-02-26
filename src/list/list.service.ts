@@ -1,6 +1,6 @@
 import {Injectable, UnauthorizedException} from '@nestjs/common';
 import {AuthService} from "../auth/auth.service";
-import {InjectModel, } from "@nestjs/mongoose";
+import {InjectModel,} from "@nestjs/mongoose";
 import {Model, Types} from "mongoose";
 import {List, ListDocument} from "./list.schema";
 import {Group, GroupDocument} from "../group/group.schema";
@@ -76,5 +76,38 @@ export class ListService {
                 $replaceRoot: { newRoot: "$listData" }
             }
         ]).exec();*/
+    }
+
+    /**
+     * This function finds a list by id
+     * @param token - The token of the user
+     * @param id - The id of the list
+     * @returns The list
+     */
+    async findOne(token: string, id: string) {
+        const decoded = this.authService.validateToken(token);
+        if (!decoded) {
+            return;
+            //throw new UnauthorizedException('Invalid or expired token');
+        }
+
+        const list = await this.list.findById(id).exec();
+        if (!list) {
+            return;
+            //throw new UnauthorizedException('List not found');
+        }
+
+        const group = await this.group.findOne({lists: {$elemMatch: {listId: id}}}).exec();
+        if (!group) {
+            return;
+            //throw new UnauthorizedException('Group not found');
+        }
+
+        if (!group.members.some(member => member.userId === decoded.sub)) {
+            return;
+            //throw new UnauthorizedException('User not in group');
+        }
+
+        return list;
     }
 }
