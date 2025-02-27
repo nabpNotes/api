@@ -35,50 +35,20 @@ export class ListService {
         if (!groupData) {
             throw new UnauthorizedException('Group not found');
         }
+
         if (!groupData.members.some(member => member.userId === decoded.sub)) {
             throw new UnauthorizedException('User not in group');
         }
+
         for (const list of groupData.lists) {
             listIds.push(list.listId);
         }
+
         return await this.listModel.find({
             _id: {
                 $in: listIds
             }
         }).exec();
-        /*return await this.group.aggregate([
-            {
-                $match: {
-                    _id: new Types.ObjectId(id),
-                    "members.userId": decoded.sub
-                }
-            },
-            {
-                $unwind: "$lists"
-            },
-            {
-                $lookup: {
-                    from: "lists",
-                    let: { listIdStr: "$lists.listId" },
-                    pipeline: [
-                        {
-                            $match: {
-                                $expr: {
-                                    $eq: [{ $toString: "$_id" }, "$$listIdStr"]
-                                }
-                            }
-                        }
-                    ],
-                    as: "listData"
-                }
-            },
-            {
-                $unwind: "$listData"
-            },
-            {
-                $replaceRoot: { newRoot: "$listData" }
-            }
-        ]).exec();*/
     }
 
     /**

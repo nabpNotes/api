@@ -24,12 +24,16 @@ export class AuthService {
         }
     }
 
-    validateTokenWithBearer(token: string) {
-        if (!token || !token.startsWith('Bearer ')) {
+    /**
+     * This function validates a jwt with Bearer
+     * @param authHeader - The authorization header
+     */
+    validateTokenWithBearer(authHeader: string) {
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
             throw new UnauthorizedException('Missing or malformed token');
         }
 
-        const tokenString = token.split(' ')[1];
+        const tokenString = authHeader.split(' ')[1];
         return this.validateToken(tokenString);
     }
 

@@ -6,6 +6,9 @@ import {List, ListDocument} from "../list/list.schema";
 import {Group, GroupDocument} from "../group/group.schema";
 import {Model} from "mongoose";
 
+/**
+ * This service handles list item related operations
+ */
 @Injectable()
 export class ListItemService {
     constructor(
@@ -15,6 +18,12 @@ export class ListItemService {
         @InjectModel(Group.name) private groupModel: Model<GroupDocument>
     ) {}
 
+    /**
+     * This function finds all list items in a list and checks if user can access them
+     * @param authHeader
+     * @param listId - The id of the list
+     * @returns The list items
+     */
     async findAllInList(authHeader: string, listId: string) {
         const decoded = this.authService.validateTokenWithBearer(authHeader);
 
