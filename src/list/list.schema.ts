@@ -5,11 +5,22 @@ export type ListDocument = List & Document;
 
 @Schema({collection: 'lists'})
 export class List {
-  @Prop()
+  @Prop({ required: true })
   name: string;
 
-  @Prop()
-  description: string;
+  @Prop({ required: true })
+  listItems: ListItem[];
+
+  @Prop({ required: true })
+  createdAt: Date;
+}
+
+class ListItem {
+  @Prop({ required: true })
+  itemId: string;
+
+  @Prop({ required: true })
+  addedAt: Date;
 }
 
 export const ListSchema = SchemaFactory.createForClass(List);

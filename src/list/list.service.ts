@@ -1,4 +1,4 @@
-import {Injectable, UnauthorizedException} from '@nestjs/common';
+import {Inject, Injectable, UnauthorizedException} from '@nestjs/common';
 import {AuthService} from "../auth/auth.service";
 import {InjectModel,} from "@nestjs/mongoose";
 import {Model, Types} from "mongoose";
@@ -10,24 +10,27 @@ import {Group, GroupDocument} from "../group/group.schema";
  */
 @Injectable()
 export class ListService {
-    constructor(private readonly authService: AuthService, @InjectModel(Group.name) private group: Model<GroupDocument>, @InjectModel(List.name) private list: Model<ListDocument>) {
-    }
+    constructor(
+        @Inject(AuthService) private authService: AuthService,
+        @InjectModel(Group.name) private groupModel: Model<GroupDocument>,
+        @InjectModel(List.name) private listModel: Model<ListDocument>,
+    ) {}
 
     /**
      * This function finds all lists in a group
-     * @param token - The token of the user
+     * @param authHeader
      * @param id - The id of the group
      * @returns The lists
      */
-    async findAllInGroup(token: string, id: string) {
-        const decoded = this.authService.validateToken(token);
+    async findAllInGroup(authHeader: string, id: string) {
+        const decoded = this.authService.validateTokenWithBearer(authHeader);
         let listIds: string[] = [];
 
         if (!decoded) {
             throw new UnauthorizedException('Invalid or expired token');
         }
 
-        const groupData = await this.group.findById(id).exec();
+        const groupData = await this.groupModel.findById(id).exec();
 
         if (!groupData) {
             throw new UnauthorizedException('Group not found');
@@ -38,7 +41,7 @@ export class ListService {
         for (const list of groupData.lists) {
             listIds.push(list.listId);
         }
-        return await this.list.find({
+        return await this.listModel.find({
             _id: {
                 $in: listIds
             }
@@ -85,27 +88,23 @@ export class ListService {
      * @returns The list
      */
     async findOne(token: string, id: string) {
-        const decoded = this.authService.validateToken(token);
+        const decoded = this.authService.validateTokenWithBearer(token);
         if (!decoded) {
-            return;
-            //throw new UnauthorizedException('Invalid or expired token');
+            throw new UnauthorizedException('Invalid or expired token');
         }
 
-        const list = await this.list.findById(id).exec();
+        const list = await this.listModel.findById(id).exec();
         if (!list) {
-            return;
-            //throw new UnauthorizedException('List not found');
+            throw new UnauthorizedException('List not found');
         }
 
-        const group = await this.group.findOne({lists: {$elemMatch: {listId: id}}}).exec();
+        const group = await this.groupModel.findOne({lists: {$elemMatch: {listId: id}}}).exec();
         if (!group) {
-            return;
-            //throw new UnauthorizedException('Group not found');
+            throw new UnauthorizedException('Group not found');
         }
 
         if (!group.members.some(member => member.userId === decoded.sub)) {
-            return;
-            //throw new UnauthorizedException('User not in group');
+            throw new UnauthorizedException('User not in group');
         }
 
         return list;
