@@ -12,7 +12,12 @@ export class AuthController {
      */
     @Get('')
     validateToken(@Headers('authorization') authHeader: string): { valid: boolean } {
-        const isValid = this.authService.validateTokenWithBearer(authHeader);
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            throw new UnauthorizedException('Missing or malformed token');
+        }
+
+        const token = authHeader.split(' ')[1];
+        const isValid = this.authService.validateToken(token);
 
         if (!isValid) {
             throw new UnauthorizedException('Invalid or expired token');

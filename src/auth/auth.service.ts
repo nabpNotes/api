@@ -1,4 +1,4 @@
-import {ConflictException, Inject, Injectable, UnauthorizedException} from '@nestjs/common';
+import {ConflictException, Injectable, UnauthorizedException} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {InjectModel} from "@nestjs/mongoose";
 import {User, UserDocument} from "../user/user.schema";
@@ -7,10 +7,7 @@ import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class AuthService {
-    constructor(
-        @Inject(JwtService) private jwtService: JwtService,
-        @InjectModel(User.name) private userModel: Model<UserDocument>
-    ) {}
+    constructor(private readonly jwtService: JwtService, @InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
     /**
      * This function validates a jwt
@@ -22,19 +19,6 @@ export class AuthService {
         } catch (error) {
             return null;
         }
-    }
-
-    /**
-     * This function validates a jwt with Bearer
-     * @param authHeader - The authorization header
-     */
-    validateTokenWithBearer(authHeader: string) {
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            throw new UnauthorizedException('Missing or malformed token');
-        }
-
-        const tokenString = authHeader.split(' ')[1];
-        return this.validateToken(tokenString);
     }
 
     /**

@@ -15,12 +15,24 @@ export class GroupController {
    */
   @Get()
   findAll(@Headers('authorization') authHeader: string) {
-    return this.groupService.findAll(authHeader);
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new UnauthorizedException('Missing or malformed token');
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    return this.groupService.findAll(token);
   }
 
   @Get(':id')
   findOne(@Headers('authorization') authHeader: string, @Param('id') id: string) {
-    return this.groupService.findOne(authHeader, id);
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new UnauthorizedException('Missing or malformed token');
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    return this.groupService.findOne(token, id);
   }
 
   /*@Patch(':id')

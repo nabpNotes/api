@@ -1,4 +1,4 @@
-import {Inject, Injectable, UnauthorizedException} from '@nestjs/common';
+import {Injectable, UnauthorizedException} from '@nestjs/common';
 import {AuthService} from '../auth/auth.service';
 import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose";
@@ -9,10 +9,8 @@ import {Group, GroupDocument} from "./group.schema";
  */
 @Injectable()
 export class GroupService {
-  constructor(
-      @Inject(AuthService) private authService: AuthService,
-      @InjectModel(Group.name) private groupModel: Model<GroupDocument>
-  ) {}
+  constructor(private readonly authService: AuthService, @InjectModel(Group.name) private groupModel: Model<GroupDocument>) {
+  }
 
   /**
    * This function finds all groups of a user
@@ -20,7 +18,7 @@ export class GroupService {
    * @returns The groups
    */
   async findAll(token: string) {
-    const decoded = this.authService.validateTokenWithBearer(token);
+    const decoded = this.authService.validateToken(token);
     if (!decoded) {
       throw new UnauthorizedException('Invalid or expired token');
     }
@@ -37,7 +35,7 @@ export class GroupService {
    * @returns The group
    */
   async findOne(token: string, id: string) {
-    const decoded = this.authService.validateTokenWithBearer(token);
+    const decoded = this.authService.validateToken(token);
     if (!decoded) {
       throw new UnauthorizedException('Invalid or expired token');
     }
