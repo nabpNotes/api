@@ -1,8 +1,9 @@
-import {Inject, Injectable, UnauthorizedException} from '@nestjs/common';
+import {Inject, Injectable, InternalServerErrorException, UnauthorizedException} from '@nestjs/common';
 import {AuthService} from '../auth/auth.service';
 import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose";
 import {Group, GroupDocument} from "./group.schema";
+import {CreateGroupDto} from "./dto/create-group.dto";
 
 /**
  * This service handles group related operations
@@ -46,4 +47,34 @@ export class GroupService {
       $and: [{_id: id}, {'members.userId': decoded.sub}]
     }).exec();
   }
+
+  /*
+  async create(token: string, createGroupDto: CreateGroupDto) {
+    const decoded = this.authService.validateTokenWithBearer(token);
+    if (!decoded) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+
+    return await this.groupModel.create(createGroupDto);
+  }
+  */
+
+  async create(createGroupDto: CreateGroupDto) {
+    try {
+      if (!createGroupDto.createdAt) {
+        createGroupDto.createdAt = Date.now();
+      }
+
+      if (!createGroupDto.lists) {
+        createGroupDto.lists = [];
+      }
+
+      return await this.groupModel.create(createGroupDto);
+    } catch (error) {
+      console.error("Fehler bei der Erstellung der Gruppe:", error);
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+
 }

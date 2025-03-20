@@ -1,10 +1,16 @@
 export class CreateGroupDto {
     name: string;
-    description: string;
-    members: { userId: string, role: string }[];
-    lists: { listId: string }[];
-    createdAt: Date;
+    members: {
+        userId: string,
+        role: string,
+        joinedAt: number
+    } [];
+    lists: {
+        listId: string
+    } [];
+    createdAt?: number;
 }
+
 
 class Member {
     userId: string;
