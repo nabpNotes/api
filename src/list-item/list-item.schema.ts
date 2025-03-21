@@ -15,6 +15,10 @@ export class ListItem {
         'sketchboard';
     @Prop()
     title: string;
+
+    //optional properties
+    @Prop()
+    text: string;
 }
 
 export const ListItemSchema = SchemaFactory.createForClass(ListItem);

@@ -50,8 +50,8 @@ export class ListGateway {
         if (!list) {
             throw new UnauthorizedException('List not found');
         }
+        client.join(payload.listId);
         client.emit('list', list);
-        client.join(list._id);
     }
 
     /**
@@ -67,5 +67,15 @@ export class ListGateway {
             throw new UnauthorizedException('List items not found');
         }
         client.emit('listItems', listItems);
+    }
+
+    @SubscribeMessage('updateListItem')
+    async updateListItem(client: any, payload: any): Promise<any> {
+        const authHeader = client.handshake.headers.authorization;
+        const listItem = await this.listItemService.update(authHeader, payload.listId, payload.listItemId, payload.data);
+        if (!listItem) {
+            throw new UnauthorizedException('List item not found');
+        }
+        this.server.to(payload.listId).emit('listItemUpdate', listItem);
     }
 }
