@@ -48,18 +48,12 @@ export class GroupService {
     }).exec();
   }
 
-  /*
   async create(token: string, createGroupDto: CreateGroupDto) {
     const decoded = this.authService.validateTokenWithBearer(token);
     if (!decoded) {
       throw new UnauthorizedException('Invalid or expired token');
     }
 
-    return await this.groupModel.create(createGroupDto);
-  }
-  */
-
-  async create(createGroupDto: CreateGroupDto) {
     try {
       if (!createGroupDto.createdAt) {
         createGroupDto.createdAt = Date.now();
@@ -69,12 +63,15 @@ export class GroupService {
         createGroupDto.lists = [];
       }
 
-      return await this.groupModel.create(createGroupDto);
+      const group = new this.groupModel(createGroupDto);
+      await group.save();
+      return group;
     } catch (error) {
       console.error("Fehler bei der Erstellung der Gruppe:", error);
       throw new InternalServerErrorException(error.message);
     }
   }
+
 
 
 }

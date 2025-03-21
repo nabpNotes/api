@@ -24,18 +24,17 @@ export class GroupController {
     return this.groupService.findOne(authHeader, id);
   }
 
-  /*
   @Post()
   create(@Headers('authorization') authHeader: string, @Body() createGroupDto: CreateGroupDto) {
     return this.groupService.create(authHeader, createGroupDto);
   }
-  */
 
+  /*
   @Post()
   create(@Body() createGroupDto: CreateGroupDto) {
     return this.groupService.create(createGroupDto);
   }
-
+  */
   /*@Patch(':id')
   update(@Param('id') id: string, @Body() updateGroupDto: UpdateGroupDto) {
     return this.groupService.update(+id, updateGroupDto);

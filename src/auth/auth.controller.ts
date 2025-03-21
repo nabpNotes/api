@@ -57,7 +57,8 @@ export class AuthController {
             token: this.authService.createToken({sub: user._id, username: user.username}),
             username: user.username,
             nickname: user.nickname,
-            userRole: user.role
+            userRole: user.role,
+            userId: user._id
         };
     }
 }

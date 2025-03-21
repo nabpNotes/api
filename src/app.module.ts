@@ -6,7 +6,6 @@ import {UserModule} from './user/user.module';
 import {MongooseModule} from '@nestjs/mongoose';
 import { GroupModule } from './group/group.module';
 import { ListModule } from './list/list.module';
-import { ListItemService } from './list-item/list-item.service';
 import { ListItemModule } from './list-item/list-item.module';
 import * as process from "node:process";
 import * as dotenv from 'dotenv';
@@ -23,6 +22,7 @@ const MONGO_PASSWORD = process.env.MONGO_PASSWORD;
     UserModule,
     AuthModule,
     GroupModule,
+    UserModule,
     ListModule,
     ListItemModule,
   ],

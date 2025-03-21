@@ -6,7 +6,7 @@ export type GroupDocument = Group & Document;
 
 @Schema()
 export class Member {
-    @Prop({ required: true })
+    @Prop({ required: true, unique: true })
     userId: string;
 
     @Prop({ required: true })
@@ -29,7 +29,7 @@ export const ListSchema = SchemaFactory.createForClass(List);
 
 @Schema({ collection: 'groups' })
 export class Group {
-    @Prop({ required: true, unique: true })
+    @Prop({ required: true, unique: false })
     name: string;
 
     @Prop({ type: [MemberSchema], required: true })
