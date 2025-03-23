@@ -29,6 +29,7 @@
     "@nestjs/platform-socket.io": "^11.0.10",
     "@nestjs/websockets": "^11.0.10",
     "bcrypt": "^5.1.1",
+    "class-transformer": "^0.5.1",
     "dotenv": "^16.4.7",
     "mongoose": "^8.10.1",
     "reflect-metadata": "^0.2.2",
