@@ -5,6 +5,7 @@ import {ListItemService} from "./list-item.service";
 import {ListItem, ListItemSchema} from "./list-item.schema";
 import {Group, GroupSchema} from "../group/group.schema";
 import {List, ListSchema} from "../list/list.schema";
+import { ListItemController } from './list-item.controller';
 
 @Module({
     imports: [
@@ -17,5 +18,6 @@ import {List, ListSchema} from "../list/list.schema";
     ],
     providers: [ListItemService],
     exports: [ListItemService],
+    controllers: [ListItemController],
 })
 export class ListItemModule {}

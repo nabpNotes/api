@@ -14,11 +14,14 @@ export class ListGateway {
         @Inject(AuthService) private authService: AuthService,
         @Inject(ListService) private listService: ListService,
         @Inject(ListItemService) private listItemService: ListItemService
-    ) {
-    }
+    ) {}
 
     @WebSocketServer()
     server: Server;
+
+    afterInit(server: Server) {
+        this.listItemService.setServer(server);
+    }
 
     /**
      * This function is called when the module is initialized
@@ -69,7 +72,7 @@ export class ListGateway {
         client.emit('listItems', listItems);
     }
 
-    @SubscribeMessage('updateListItem')
+    /*@SubscribeMessage('updateListItem')
     async updateListItem(client: any, payload: any): Promise<any> {
         const authHeader = client.handshake.headers.authorization;
         const listItem = await this.listItemService.update(authHeader, payload.listId, payload.listItemId, payload.data);
@@ -77,5 +80,5 @@ export class ListGateway {
             throw new UnauthorizedException('List item not found');
         }
         this.server.to(payload.listId).emit('listItemUpdate', listItem);
-    }
+    }*/
 }

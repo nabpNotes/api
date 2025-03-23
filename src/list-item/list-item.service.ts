@@ -5,6 +5,7 @@ import {ListItem, ListItemDocument} from "./list-item.schema";
 import {List, ListDocument} from "../list/list.schema";
 import {Group, GroupDocument} from "../group/group.schema";
 import {Model} from "mongoose";
+import {Server} from 'socket.io';
 
 /**
  * This service handles list item related operations
@@ -17,6 +18,18 @@ export class ListItemService {
         @InjectModel(List.name) private listModel: Model<ListDocument>,
         @InjectModel(Group.name) private groupModel: Model<GroupDocument>
     ) {}
+
+    private server: Server;
+
+    setServer(server: Server) {
+        this.server = server;
+    }
+
+    sendEvent(event: string, data: any) {
+        if (this.server) {
+            this.server.emit(event, data);
+        }
+    }
 
     /**
      * This function finds all list items in a list and checks if user can access them
@@ -47,7 +60,8 @@ export class ListItemService {
         if (!listItem) {
             throw new UnauthorizedException('List item not found');
         }
-        console.log(data);
+        console.log(listId)
+        this.server.to(listId).emit('listItemUpdate', listItem);
         return await this.listItemModel.findByIdAndUpdate(listItem.itemId, data, {new: true}).exec();
     }
 
