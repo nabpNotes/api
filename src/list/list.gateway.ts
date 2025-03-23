@@ -14,11 +14,14 @@ export class ListGateway {
         @Inject(AuthService) private authService: AuthService,
         @Inject(ListService) private listService: ListService,
         @Inject(ListItemService) private listItemService: ListItemService
-    ) {
-    }
+    ) {}
 
     @WebSocketServer()
     server: Server;
+
+    afterInit(server: Server) {
+        this.listItemService.setServer(server);
+    }
 
     /**
      * This function is called when the module is initialized
@@ -50,8 +53,8 @@ export class ListGateway {
         if (!list) {
             throw new UnauthorizedException('List not found');
         }
+        client.join(payload.listId);
         client.emit('list', list);
-        client.join(list._id);
     }
 
     /**
