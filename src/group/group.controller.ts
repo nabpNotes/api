@@ -29,12 +29,7 @@ export class GroupController {
     return this.groupService.create(authHeader, createGroupDto);
   }
 
-  /*
-  @Post()
-  create(@Body() createGroupDto: CreateGroupDto) {
-    return this.groupService.create(createGroupDto);
-  }
-  */
+
   /*@Patch(':id')
   update(@Param('id') id: string, @Body() updateGroupDto: UpdateGroupDto) {
     return this.groupService.update(+id, updateGroupDto);
