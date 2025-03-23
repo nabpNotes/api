@@ -1,7 +1,7 @@
 import {Inject, Injectable, UnauthorizedException} from '@nestjs/common';
 import {AuthService} from "../auth/auth.service";
 import {InjectModel,} from "@nestjs/mongoose";
-import {Model, Types} from "mongoose";
+import {Model} from "mongoose";
 import {List, ListDocument} from "./list.schema";
 import {Group, GroupDocument} from "../group/group.schema";
 

@@ -25,6 +25,11 @@ export class ListItemService {
         this.server = server;
     }
 
+    /**
+     * This function sends an event to the client
+     * @param event - The event
+     * @param data - The data
+     */
     sendEvent(event: string, data: any) {
         if (this.server) {
             this.server.emit(event, data);
@@ -33,7 +38,7 @@ export class ListItemService {
 
     /**
      * This function finds all list items in a list and checks if user can access them
-     * @param authHeader
+     * @param authHeader - The authorization header
      * @param listId - The id of the list
      * @returns The list items
      */
@@ -53,6 +58,14 @@ export class ListItemService {
         }).exec();
     }
 
+    /**
+     * This function updates a list item
+     * @param authHeader - The authorization header
+     * @param listId - The id of the list
+     * @param itemId - The id of the item
+     * @param data - The data to update
+     * @returns The updated list item
+     */
     async update(authHeader: string, listId: string, itemId: string, data: any) {
         const list = await this.checkIfUserCanAccessList(authHeader, listId);
 
@@ -65,6 +78,12 @@ export class ListItemService {
         return await this.listItemModel.findByIdAndUpdate(listItem.itemId, data, {new: true}).exec();
     }
 
+    /**
+     * This function checks if the user can access a list
+     * @param authHeader - The authorization header
+     * @param listId - The id of the list
+     * @returns The list
+     */
     async checkIfUserCanAccessList(authHeader: string, listId: string) {
         const decoded = this.authService.validateTokenWithBearer(authHeader);
 
