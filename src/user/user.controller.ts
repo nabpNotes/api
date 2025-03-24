@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Headers, Param, Patch} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Headers, Param, Patch} from "@nestjs/common";
 import { UserService } from "./user.service";
 
 /**
@@ -33,5 +33,16 @@ export class UserController {
         @Body('nickname') newNickname: string
     ) {
         return this.userService.updateNickname(authHeader, newNickname);
+    }
+
+    /**
+     * This function deletes the user
+     * @param authHeader the authorization header containing the token
+     */
+    @Delete()
+    async deleteUser(
+        @Headers('authorization') authHeader: string,
+    ){
+        return this.userService.deleteUser(authHeader);
     }
 }

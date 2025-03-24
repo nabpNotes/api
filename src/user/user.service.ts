@@ -38,7 +38,6 @@ export class UserService {
      * @param newNickname the new nickname
      */
     async updateNickname(autHeader: string, newNickname: string) {
-
         //console.log("authHeader " + autHeader);
 
         const decoded = this.authService.validateTokenWithBearer(autHeader);
@@ -58,5 +57,27 @@ export class UserService {
             {nickname: newNickname},
             {new: true}
         );
+    }
+
+    /**
+     * This function deletes a user
+     * @param autHeader the authorization header
+     */
+    async deleteUser(autHeader: string) {
+        //console.log("authHeader " + autHeader);
+
+        const decoded = this.authService.validateTokenWithBearer(autHeader);
+        if (!decoded) {
+            throw new UnauthorizedException('Invalid or expired token');
+        }
+
+        const id = decoded.sub
+        //console.log(id);
+
+        if (!id) {
+            throw new UnauthorizedException('id not found in token');
+        }
+
+        return this.userModel.findByIdAndDelete(id);
     }
 }
