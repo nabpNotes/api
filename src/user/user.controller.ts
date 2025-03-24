@@ -1,4 +1,4 @@
-import { Controller, Get, Headers } from "@nestjs/common";
+import {Body, Controller, Get, Headers, Param, Patch} from "@nestjs/common";
 import { UserService } from "./user.service";
 
 /**
@@ -20,5 +20,18 @@ export class UserController {
     @Get()
     findAll(@Headers('authorization') authHeader: string): Promise<any> {
         return this.userService.findAll(authHeader);
+    }
+
+    /**
+     * This function patches the user's nickname
+     * @param authHeader the authorization header containing the token
+     * @param newNickname the new nickname
+     */
+    @Patch('nickname')
+    async updateNickname(
+        @Headers('authorization') authHeader: string,
+        @Body('nickname') newNickname: string
+    ) {
+        return this.userService.updateNickname(authHeader, newNickname);
     }
 }

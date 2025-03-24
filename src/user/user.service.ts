@@ -31,4 +31,32 @@ export class UserService {
 
         return await this.userModel.find().select('username profilePictureExt').exec();
     }
+
+    /**
+     * This function updates the user's nickname
+     * @param autHeader the authorization header
+     * @param newNickname the new nickname
+     */
+    async updateNickname(autHeader: string, newNickname: string) {
+
+        //console.log("authHeader " + autHeader);
+
+        const decoded = this.authService.validateTokenWithBearer(autHeader);
+        if (!decoded) {
+            throw new UnauthorizedException('Invalid or expired token');
+        }
+
+        const id = decoded.sub
+        //console.log(id);
+
+        if (!id) {
+            throw new UnauthorizedException('id not found in token');
+        }
+
+        return this.userModel.findByIdAndUpdate(
+            id,
+            {nickname: newNickname},
+            {new: true}
+        );
+    }
 }
