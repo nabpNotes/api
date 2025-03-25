@@ -80,4 +80,30 @@ export class UserService {
 
         return this.userModel.findByIdAndDelete(id);
     }
+
+    /**
+     * This function updates the user's password
+     * @param autHeader the authorization header
+     * @param newPassword the new password
+     */
+    async updatePassword(autHeader: string, newPassword: string) {
+        const decoded = this.authService.validateTokenWithBearer(autHeader);
+        if (!decoded) {
+            throw new UnauthorizedException('Invalid or expired token');
+        }
+
+        const id = decoded.sub
+
+        if (!id) {
+            throw new UnauthorizedException('id not found in token');
+        }
+
+        const hashedPassword = await this.authService.createHashedPassword(newPassword);
+
+        return this.userModel.findByIdAndUpdate(
+            id,
+            {password: hashedPassword},
+            {new: true}
+        );
+    }
 }

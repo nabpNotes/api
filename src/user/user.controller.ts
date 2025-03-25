@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Headers, Param, Patch} from "@nestjs/common";
+import {BadRequestException, Body, Controller, Delete, Get, Headers, Param, Patch} from "@nestjs/common";
 import { UserService } from "./user.service";
 
 /**
@@ -44,5 +44,22 @@ export class UserController {
         @Headers('authorization') authHeader: string,
     ){
         return this.userService.deleteUser(authHeader);
+    }
+
+    /**
+     * This function updates the user's password
+     * @param authHeader the authorization header containing the token
+     * @param body the request body
+     */
+    @Patch('password')
+    async updatePassword(
+        @Headers('authorization') authHeader: string,
+        @Body() body: { password: string }
+    ) {
+        if (!body.password) {
+            throw new BadRequestException("Password is required.");
+        }
+
+        return this.userService.updatePassword(authHeader, body.password);
     }
 }
