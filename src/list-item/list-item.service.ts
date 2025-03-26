@@ -68,14 +68,12 @@ export class ListItemService {
      */
     async update(authHeader: string, listId: string, itemId: string, data: any) {
         const list = await this.checkIfUserCanAccessList(authHeader, listId);
-
-        const listItem = list.listItems.find(listItem => listItem.itemId === itemId);
-        if (!listItem) {
+        if (!list) {
             throw new UnauthorizedException('List item not found');
         }
-        console.log(listId)
+        const listItem = await this.listItemModel.findByIdAndUpdate(itemId, data, {new: true}).exec();
         this.server.to(listId).emit('listItemUpdate', listItem);
-        return await this.listItemModel.findByIdAndUpdate(listItem.itemId, data, {new: true}).exec();
+        return listItem;
     }
 
     /**
