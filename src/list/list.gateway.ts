@@ -19,6 +19,10 @@ export class ListGateway {
     @WebSocketServer()
     server: Server;
 
+    /**
+     * This function is called when the server is initialized
+     * @param server - The socketIO server
+     */
     afterInit(server: Server) {
         this.listItemService.setServer(server);
     }
