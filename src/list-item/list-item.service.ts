@@ -26,17 +26,6 @@ export class ListItemService {
     }
 
     /**
-     * This function sends an event to the client
-     * @param event - The event
-     * @param data - The data
-     */
-    sendEvent(event: string, data: any) {
-        if (this.server) {
-            this.server.emit(event, data);
-        }
-    }
-
-    /**
      * This function finds all list items in a list and checks if user can access them
      * @param authHeader - The authorization header
      * @param listId - The id of the list
