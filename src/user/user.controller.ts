@@ -54,12 +54,12 @@ export class UserController {
     @Patch('password')
     async updatePassword(
         @Headers('authorization') authHeader: string,
-        @Body() body: { password: string }
+        @Body() body: { password: string, oldPassword: string }
     ) {
-        if (!body.password) {
+        if (!body.password || !body.oldPassword) {
             throw new BadRequestException("Password is required.");
         }
 
-        return this.userService.updatePassword(authHeader, body.password);
+        return this.userService.updatePassword(authHeader, body.password, body.oldPassword);
     }
 }

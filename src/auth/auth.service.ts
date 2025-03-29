@@ -95,4 +95,13 @@ export class AuthService {
         return await bcrypt.hash(password, 10);
     }
 
+    /**
+     * This function compares two passwords with bcrypt
+     * @param passwordA the first password
+     * @param passwordB the second password
+     */
+    async comparePassword(passwordA: string, passwordB: string) {
+        return await bcrypt.compare(passwordA, passwordB);
+    }
+
 }

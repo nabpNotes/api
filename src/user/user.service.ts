@@ -85,8 +85,9 @@ export class UserService {
      * This function updates the user's password
      * @param autHeader the authorization header
      * @param newPassword the new password
+     * @param oldPassword the old password
      */
-    async updatePassword(autHeader: string, newPassword: string) {
+    async updatePassword(autHeader: string, newPassword: string, oldPassword: string) {
         const decoded = this.authService.validateTokenWithBearer(autHeader);
         if (!decoded) {
             throw new UnauthorizedException('Invalid or expired token');
@@ -96,6 +97,19 @@ export class UserService {
 
         if (!id) {
             throw new UnauthorizedException('id not found in token');
+        }
+
+        const user= await this.userModel.findById(id);
+        if (!user) {
+            console.error("User not found for ID:", id);
+            throw new UnauthorizedException("Wrong old password");
+        }
+        const savedPassword = user.password;
+
+        const isMatch = await this.authService.comparePassword(oldPassword, savedPassword);
+        if (!isMatch) {
+            console.error("wrong old password");
+            throw new UnauthorizedException("wrong old password")
         }
 
         const hashedPassword = await this.authService.createHashedPassword(newPassword);
