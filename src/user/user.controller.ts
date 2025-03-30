@@ -1,4 +1,4 @@
-import { Controller, Get, Headers } from "@nestjs/common";
+import {BadRequestException, Body, Controller, Delete, Get, Headers, Param, Patch} from "@nestjs/common";
 import { UserService } from "./user.service";
 
 /**
@@ -20,5 +20,46 @@ export class UserController {
     @Get()
     findAll(@Headers('authorization') authHeader: string): Promise<any> {
         return this.userService.findAll(authHeader);
+    }
+
+    /**
+     * This function patches the user's nickname
+     * @param authHeader the authorization header containing the token
+     * @param newNickname the new nickname
+     */
+    @Patch('nickname')
+    async updateNickname(
+        @Headers('authorization') authHeader: string,
+        @Body('nickname') newNickname: string
+    ) {
+        return this.userService.updateNickname(authHeader, newNickname);
+    }
+
+    /**
+     * This function deletes the user
+     * @param authHeader the authorization header containing the token
+     */
+    @Delete()
+    async deleteUser(
+        @Headers('authorization') authHeader: string,
+    ){
+        return this.userService.deleteUser(authHeader);
+    }
+
+    /**
+     * This function updates the user's password
+     * @param authHeader the authorization header containing the token
+     * @param body the request body
+     */
+    @Patch('password')
+    async updatePassword(
+        @Headers('authorization') authHeader: string,
+        @Body() body: { password: string, oldPassword: string }
+    ) {
+        if (!body.password || !body.oldPassword) {
+            throw new BadRequestException("Password is required.");
+        }
+
+        return this.userService.updatePassword(authHeader, body.password, body.oldPassword);
     }
 }

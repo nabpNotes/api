@@ -75,11 +75,8 @@ export class GroupService {
       await group.save();
       return { success: true, message: "Successfully created group" };
     } catch (error) {
-      console.error("Fehler bei der Erstellung der Gruppe:", error);
+      console.error("Error occurred while creating Group:", error);
       return { success: false, message: "Could not create new group" };
     }
   }
-
-
-
 }

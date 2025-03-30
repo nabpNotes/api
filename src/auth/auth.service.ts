@@ -69,7 +69,8 @@ export class AuthService {
             throw new ConflictException('Username already taken');
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        //const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await this.createHashedPassword(password);
         const newUser = new this.userModel({email: email, username: username, nickname: username, password: hashedPassword, role: 'user', createdAt: new Date()});
         return newUser.save();
     }
@@ -81,4 +82,26 @@ export class AuthService {
     createToken(payload: any) {
         return this.jwtService.sign(payload);
     }
+
+    /**
+     * This function creates a hashed password
+     * @param password
+     */
+    async createHashedPassword(password: string): Promise<string> {
+        if (!password) {
+            throw new Error("Password is required and cannot be empty.");
+        }
+
+        return await bcrypt.hash(password, 10);
+    }
+
+    /**
+     * This function compares two passwords with bcrypt
+     * @param passwordA the first password
+     * @param passwordB the second password
+     */
+    async comparePassword(passwordA: string, passwordB: string) {
+        return await bcrypt.compare(passwordA, passwordB);
+    }
+
 }

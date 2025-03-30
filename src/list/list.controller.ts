@@ -1,6 +1,6 @@
-import {Controller, Get, Post, Body, Headers, UnauthorizedException, Param} from '@nestjs/common';
+import {Controller, Get, Post, Body, Headers, Param} from '@nestjs/common';
 import {ListService} from "./list.service";
-import {identity} from "rxjs";
+import {CreateListDto} from "./dto/create-list.dto";
 
 /**
  * This controller handles list related operations
@@ -19,4 +19,12 @@ export class ListController {
   findAllInGroup(@Headers('authorization') authHeader: string, @Param('groupId') groupId: string) {
     return this.listService.findAllInGroup(authHeader, groupId);
   }
+
+
+  @Post(':groupId')
+  create(@Headers('authorization') authHeader: string, @Param('groupId') groupId: string, @Body() createListDto: CreateListDto) {
+    return this.listService.create(authHeader, groupId, createListDto);
+  }
+
+
 }

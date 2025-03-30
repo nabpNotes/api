@@ -26,17 +26,6 @@ export class ListItemService {
     }
 
     /**
-     * This function sends an event to the client
-     * @param event - The event
-     * @param data - The data
-     */
-    sendEvent(event: string, data: any) {
-        if (this.server) {
-            this.server.emit(event, data);
-        }
-    }
-
-    /**
      * This function finds all list items in a list and checks if user can access them
      * @param authHeader - The authorization header
      * @param listId - The id of the list
@@ -48,7 +37,8 @@ export class ListItemService {
         let itemIds: string[] = [];
 
         for (const listItem of list.listItems) {
-            itemIds.push(listItem.itemId);
+            const listItemObj = JSON.parse(JSON.stringify(listItem));
+            itemIds.push(listItemObj.itemId);
         }
 
         return await this.listItemModel.find({
@@ -68,14 +58,12 @@ export class ListItemService {
      */
     async update(authHeader: string, listId: string, itemId: string, data: any) {
         const list = await this.checkIfUserCanAccessList(authHeader, listId);
-
-        const listItem = list.listItems.find(listItem => listItem.itemId === itemId);
-        if (!listItem) {
+        if (!list) {
             throw new UnauthorizedException('List item not found');
         }
-        console.log(listId)
+        const listItem = await this.listItemModel.findByIdAndUpdate(itemId, data, {new: true}).exec();
         this.server.to(listId).emit('listItemUpdate', listItem);
-        return await this.listItemModel.findByIdAndUpdate(listItem.itemId, data, {new: true}).exec();
+        return listItem;
     }
 
     /**

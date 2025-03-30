@@ -1,9 +1,10 @@
 import {Inject, Injectable, UnauthorizedException} from '@nestjs/common';
 import {AuthService} from "../auth/auth.service";
 import {InjectModel,} from "@nestjs/mongoose";
-import {Model} from "mongoose";
+import {Model, Types} from "mongoose";
 import {List, ListDocument} from "./list.schema";
 import {Group, GroupDocument} from "../group/group.schema";
+import {CreateListDto} from "./dto/create-list.dto";
 
 /**
  * This service handles list related operations
@@ -78,5 +79,45 @@ export class ListService {
         }
 
         return list;
+    }
+
+    async create(token: string, groupId: string, createListDto: CreateListDto) {
+        const decoded = this.authService.validateTokenWithBearer(token);
+        if (!decoded) {
+            throw new UnauthorizedException('Invalid or expired token');
+        }
+
+        try {
+            const group = await this.groupModel.findById(groupId);
+            if (!group) {
+                console.error("Group not found for ID:", groupId);
+                return { success: false, message: "Group not found" };
+            }
+
+            if (!createListDto.createdAt) {
+                createListDto.createdAt = Date.now();
+            }
+
+            const list = new this.listModel(createListDto) as unknown as ListDocument;
+            await list.save();
+
+            const listToAdd = {
+                listId: (list._id as Types.ObjectId).toString(),
+                addedAt: Date.now(),
+            };
+
+            group.lists.push(listToAdd);
+
+            await group.save();
+
+
+            console.log("Updated group with new list:", group);
+
+            return { success: true, message: "List created and added to group", data: list };
+
+        } catch (error) {
+            console.error("Error occurred while creating List:", error);
+            return {success: false, message: "Could not create new List"};
+        }
     }
 }
