@@ -37,7 +37,8 @@ export class ListItemService {
         let itemIds: string[] = [];
 
         for (const listItem of list.listItems) {
-            itemIds.push(listItem.itemId);
+            const listItemObj = JSON.parse(JSON.stringify(listItem));
+            itemIds.push(listItemObj.itemId);
         }
 
         return await this.listItemModel.find({
