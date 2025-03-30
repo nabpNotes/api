@@ -4,7 +4,7 @@ import {InjectModel} from "@nestjs/mongoose";
 import {ListItem, ListItemDocument} from "./list-item.schema";
 import {List, ListDocument} from "../list/list.schema";
 import {Group, GroupDocument} from "../group/group.schema";
-import {Model} from "mongoose";
+import {Model, Types} from "mongoose";
 import {Server} from 'socket.io';
 
 /**
@@ -93,5 +93,52 @@ export class ListItemService {
             throw new UnauthorizedException('User not in group');
         }
         return list;
+    }
+
+    /**
+     * Creates a new list item and adds it to the specified list.
+     *
+     * Validates the type and creates the item based on the type ('text' or 'checklist').
+     * Saves the item and adds it to the list’s listItems array.
+     *
+     * @param {string} authHeader - The authorization header with the user's token.
+     * @param {string} listId - The ID of the list to add the item to.
+     * @param {Object} data - The data for the new list item (type, title, text/checklistItems).
+     * @returns {Object} - Success or error message.
+     */
+    async create(authHeader: string, listId: string, data: any) {
+        const list = await this.checkIfUserCanAccessList(authHeader, listId);
+
+        if (!data.type) throw new Error("Type is required.");
+
+        let newItem;
+        if (data.type == "text") {
+            newItem = new this.listItemModel({
+                type: data.type,
+                title: data.title,
+                text: data.text
+            });
+        } else if (data.type == "checklist") {
+            newItem = new this.listItemModel({
+                type: data.type,
+                title: data.title,
+                checklistItems: data.checklistItems
+            });
+        } else {
+            return { success: false, message: "Invalid type"};
+        }
+
+        await newItem.save();
+
+        const itemToAdd = {
+            itemId: (newItem._id as Types.ObjectId).toString(),
+            addedAt: Date.now()
+        };
+
+        list.listItems.push(itemToAdd);
+
+        await list.save();
+
+        return { success: true, message: "item successfully created"};
     }
 }
