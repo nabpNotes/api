@@ -19,6 +19,9 @@ export class ListItem {
     //optional properties
     @Prop()
     text: string;
+
+    @Prop({ type: [{ checkboxLabel: { type: String }, checked: { type: Boolean, default: false } }] })
+    checklistItems: { checkboxLabel: string; checked: boolean }[];
 }
 
 export const ListItemSchema = SchemaFactory.createForClass(ListItem);

@@ -98,7 +98,7 @@ export class ListService {
                 createListDto.createdAt = Date.now();
             }
 
-            const list = new this.listModel(createListDto) as unknown as ListDocument;
+            const list = new this.listModel(createListDto) as ListDocument;
             await list.save();
 
             const listToAdd = {
