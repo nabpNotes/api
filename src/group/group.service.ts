@@ -162,7 +162,10 @@ export class GroupService {
 
     const group = await this.groupModel.findById(id).exec();
     if (!group) {
-      return { success: false, message: "Group not found" };
+      throw new UnauthorizedException('Group not found');
+    }
+    if (group.members.some((member) => member.userId === decoded.sub && member.role !== "groupadmin")) {
+      throw new UnauthorizedException('You are not the owner of this group');
     }
 
     await this.groupModel.findByIdAndDelete(id).exec();
@@ -186,14 +189,19 @@ export class GroupService {
       if (!decoded) {
         throw new UnauthorizedException('Invalid or expired token');
       }
-  
+      
       const group = await this.groupModel.findById(groupId).exec();
       if (!group) {
-        return { success: false, message: "Group not found" };
+        throw new UnauthorizedException('Group not found');
       }
-  
+      if (group.members.some((member) => member.userId === decoded.sub && member.role !== "groupadmin")) {
+        throw new UnauthorizedException('You are not the owner of this group');
+      }
+      if (userId === decoded.sub) {
+        throw new UnauthorizedException('You cannot remove yourself');
+      }
       if (!group.members.some((member) => member.userId === userId)) {
-        return { success: false, message: "User not in group" };
+        throw new UnauthorizedException('User not in group');
       }
   
       group.members = group.members.filter((member) => member.userId !== userId);
