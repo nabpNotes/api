@@ -35,9 +35,9 @@ export class GroupController {
     return this.groupService.create(authHeader, createGroupDto);
   }
 
-  @Patch(':chatId/add/user/:nickname')
-  addGroupMember(@Headers('authorization') authHeader: string, @Param('chatId') chatid: string, @Param('nickname') nickname: string) {
-    return this.groupService.addGroupMember(authHeader, chatid, nickname);
+  @Patch(':chatId/add/user/:username')
+  addGroupMember(@Headers('authorization') authHeader: string, @Param('chatId') chatid: string, @Param('username') username: string) {
+    return this.groupService.addGroupMember(authHeader, chatid, username);
   }
 
   /*@Patch(':id')
@@ -52,8 +52,6 @@ export class GroupController {
 
   @Patch(':chatId/user/:userId')
   removeUser(@Headers('authorization') authHeader: string, @Param('chatId') chatid: string, @Param('userId') id: string) {
-    console.log(authHeader, chatid, id);
-    console.log("Test");
     return this.groupService.removeUser(authHeader,chatid, id);
   }
 }

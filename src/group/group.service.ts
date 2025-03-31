@@ -20,8 +20,8 @@ export class GroupService {
 
   /**
    * This function finds all groups of a user
-   * @param token - The token of the user
-   * @returns The groups
+   * @param {string} token - The token of the user
+   * @returns {object} The groups
    */
   async findAll(token: string) {
     const decoded = this.authService.validateTokenWithBearer(token);
@@ -38,9 +38,9 @@ export class GroupService {
 
   /**
    * This function finds a group by id
-   * @param token - The token of the user
-   * @param id - The id of the group
-   * @returns The group
+   * @param {string} token - The token of the user
+   * @param {string} id - The id of the group
+   * @returns {object} The group
    */
   async findOne(token: string, id: string) {
     const decoded = this.authService.validateTokenWithBearer(token);
@@ -55,6 +55,9 @@ export class GroupService {
 
   /**
    * This function returns all members of a Group
+   * @param {string} token - The token of the user
+   * @param {string} chatId - The id of the group
+   * @returns {object} The members of the group
    */
   async findAllUser(token: string, chatId: string) {
     const decoded = this.authService.validateTokenWithBearer(token);
@@ -77,14 +80,25 @@ export class GroupService {
     return MemberList;
   }
 
-  async addGroupMember(token: string, groupId: string, nickname: string,) {
-    console.log(groupId, nickname);
+  /**
+   * This function adds a user to a group
+   * @param {string} token - The token of the user
+   * @param {string} groupId - The id of the group
+   * @param {string} username - The username of the new user
+   * @returns {object} The group the user was added to
+   */
+  async addGroupMember(token: string, groupId: string, username: string,) {
     const decoded = this.authService.validateTokenWithBearer(token);
     if (!decoded) {
       throw new UnauthorizedException('Invalid or expired token');
     }
-    const user = await this.userService.findByNickname(nickname);
+    const user = await this.userService.findByNickname(username);
     if (!user) throw new UnauthorizedException('User not found');
+    const group = await this.findOne(token, groupId);
+    if (!group) throw new UnauthorizedException('Group not found');
+    console.log(group, user._id);
+    const member = group.members.find(member => member.userId === user._id);
+    if (member) throw new UnauthorizedException('User already in group');
 
     return await this.groupModel.findOneAndUpdate({
       $and: [{_id: groupId}, {'members.userId': decoded.sub}]
@@ -133,6 +147,12 @@ export class GroupService {
     }
   }
   
+  /**
+   * This function deletes a group
+   * @param {string} token - The token of the user
+   * @param {string} id - The id of the group to delete
+   * @returns {object} - An object with success status and a message  
+   */
   async delete(token: string, id: string) {
     try {
     const decoded = this.authService.validateTokenWithBearer(token);
@@ -153,6 +173,13 @@ export class GroupService {
     }
   }
 
+  /**
+   * This function removes a user from a group
+   * @param {string} token - The token of the user
+   * @param {string} groupId - The id of the group
+   * @param {string} userId - The id of the user to remove
+   * @returns {object} - An object with success status and a message
+   */
   async removeUser(token: string, groupId: string, userId: string) {
     try {
       const decoded = this.authService.validateTokenWithBearer(token);
