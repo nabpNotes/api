@@ -1,6 +1,7 @@
-import {Controller, Get, Headers, Param, Body, Post} from '@nestjs/common';
+import {Controller, Get, Delete, Patch, Headers, Param, Body, Post} from '@nestjs/common';
 import { GroupService } from './group.service';
 import {CreateGroupDto} from "./dto/create-group.dto";
+import { AddUserToGroupDto } from './dto/add-user-to-group.dto';
 
 /**
  * This controller handles group related operations
@@ -19,6 +20,11 @@ export class GroupController {
     return this.groupService.findAll(authHeader);
   }
 
+  @Get(':id/user')
+  findAllUser(@Headers('authorization') authHeader: string, @Param('id') id: string) {
+    return this.groupService.findAllUser(authHeader , id);
+  }
+
   @Get(':id')
   findOne(@Headers('authorization') authHeader: string, @Param('id') id: string) {
     return this.groupService.findOne(authHeader, id);
@@ -29,14 +35,23 @@ export class GroupController {
     return this.groupService.create(authHeader, createGroupDto);
   }
 
+  @Patch(':chatId/add/user/:username')
+  addGroupMember(@Headers('authorization') authHeader: string, @Param('chatId') chatid: string, @Param('username') username: string) {
+    return this.groupService.addGroupMember(authHeader, chatid, username);
+  }
 
   /*@Patch(':id')
   update(@Param('id') id: string, @Body() updateGroupDto: UpdateGroupDto) {
     return this.groupService.update(+id, updateGroupDto);
-  }
+}*/
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.groupService.remove(+id);
-  }*/
+  delete(@Headers('authorization') authHeader: string, @Param('id') id: string) { 
+    return this.groupService.delete(authHeader, id);
+  }
+
+  @Patch(':chatId/user/:userId')
+  removeUser(@Headers('authorization') authHeader: string, @Param('chatId') chatid: string, @Param('userId') id: string) {
+    return this.groupService.removeUser(authHeader,chatid, id);
+  }
 }

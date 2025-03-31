@@ -12,7 +12,7 @@ export class CreateGroupDto {
 }
 
 
-class Member {
+export class Member {
     userId: string;
     role: string;
     joinedAt: Date;
