@@ -32,6 +32,14 @@ export class UserService {
         return await this.userModel.find().select('username profilePictureExt').exec();
     }
 
+    async findById(id: string) {
+        return await this.userModel.findById(id).exec();
+    }
+
+    async findByNickname(nickname: string) {
+        return await this.userModel.findOne({nickname: nickname}).exec();
+    }
+
     /**
      * This function updates the user's nickname
      * @param autHeader the authorization header

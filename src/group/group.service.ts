@@ -4,6 +4,8 @@ import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose";
 import {Group, GroupDocument} from "./group.schema";
 import {CreateGroupDto} from "./dto/create-group.dto";
+import { AddUserToGroupDto } from './dto/add-user-to-group.dto';
+import { UserService } from 'src/user/user.service';
 
 /**
  * This service handles group related operations
@@ -12,6 +14,7 @@ import {CreateGroupDto} from "./dto/create-group.dto";
 export class GroupService {
   constructor(
       @Inject(AuthService) private authService: AuthService,
+      @Inject(UserService) private userService: UserService,
       @InjectModel(Group.name) private groupModel: Model<GroupDocument>
   ) {}
 
@@ -31,6 +34,8 @@ export class GroupService {
     }).exec();
   }
 
+
+
   /**
    * This function finds a group by id
    * @param token - The token of the user
@@ -47,6 +52,54 @@ export class GroupService {
       $and: [{_id: id}, {'members.userId': decoded.sub}]
     }).exec();
   }
+
+  /**
+   * This function returns all members of a Group
+   */
+  async findAllUser(token: string, chatId: string) {
+    const decoded = this.authService.validateTokenWithBearer(token);
+    const MemberList: any[] = [];
+    if (!decoded) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+
+    const group = await this.groupModel.findOne({
+      $and: [{_id: chatId}, {'members.userId': decoded.sub}]
+    }).exec();
+
+    if (!group) {
+      throw new UnauthorizedException('Group not found');
+    }
+    for (const member of group.members) {
+      const user = await this.userService.findById(member.userId);
+      MemberList.push(user);
+    }
+    return MemberList;
+  }
+
+  async addGroupMember(token: string, groupId: string, nickname: string,) {
+    console.log(groupId, nickname);
+    const decoded = this.authService.validateTokenWithBearer(token);
+    if (!decoded) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+    const user = await this.userService.findByNickname(nickname);
+    if (!user) throw new UnauthorizedException('User not found');
+
+    return await this.groupModel.findOneAndUpdate({
+      $and: [{_id: groupId}, {'members.userId': decoded.sub}]
+    }, {
+      $push: {
+        members: {
+          userId: user._id,
+          role: "user",
+        }
+      }
+    }, {
+      new: true
+    }).exec();
+  }
+
 
   /**
    * This function creates a new group
@@ -79,4 +132,50 @@ export class GroupService {
       return { success: false, message: "Could not create new group" };
     }
   }
+  
+  async delete(token: string, id: string) {
+    try {
+    const decoded = this.authService.validateTokenWithBearer(token);
+    if (!decoded) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
+
+    const group = await this.groupModel.findById(id).exec();
+    if (!group) {
+      return { success: false, message: "Group not found" };
+    }
+
+    await this.groupModel.findByIdAndDelete(id).exec();
+    return { success: true, message: "Successfully deleted group" };
+    } catch (error) {
+      console.error("Fehler beim Löschen der Gruppe:", error);
+      return { success: false, message: "Could not delete group" };
+    }
+  }
+
+  async removeUser(token: string, groupId: string, userId: string) {
+    try {
+      const decoded = this.authService.validateTokenWithBearer(token);
+      if (!decoded) {
+        throw new UnauthorizedException('Invalid or expired token');
+      }
+  
+      const group = await this.groupModel.findById(groupId).exec();
+      if (!group) {
+        return { success: false, message: "Group not found" };
+      }
+  
+      if (!group.members.some((member) => member.userId === userId)) {
+        return { success: false, message: "User not in group" };
+      }
+  
+      group.members = group.members.filter((member) => member.userId !== userId);
+      await group.save();
+      return { success: true, message: "Successfully removed user from group" };
+    } catch (error) {
+      console.error("Fehler beim Löschen der Gruppe:", error);
+      return { success: false, message: "Could not remove user from group" };
+    }
+  }
+
 }
